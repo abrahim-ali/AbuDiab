@@ -1,0 +1,33 @@
+
+{
+  "blogPosts": [
+    {
+      "title": {
+        "de": "يب",
+        "en": "قث"
+      },
+      "content": {
+        "de": "ققققق",
+        "en": "ثثثثث"
+      },
+      "image": "/img/diab.png",
+      "slug": "هلا",
+      "published": true,
+      "id": "1757366434427"
+    },
+    {
+      "id": "1757367122442",
+      "title": {
+        "de": "غفعع",
+        "en": "ثثثر"
+      },
+      "content": {
+        "de": "سسسسسسسسسث",
+        "en": "يييييييس"
+      },
+      "slug": "ةتت",
+      "image": "/uploads/1757367122425.png",
+      "published": true
+    }
+  ]
+}
