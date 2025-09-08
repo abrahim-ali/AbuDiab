@@ -6,8 +6,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Resend } from 'resend';
 import path from 'path';
-import multer from 'multer'; // ← أضف هذه المكتبة
-import bcrypt from 'bcrypt'; // ← نستخدمه لتشفير كلمة المرور
+import multer from 'multer'; 
+import bcrypt from 'bcrypt'; 
 
 dotenv.config();
 
