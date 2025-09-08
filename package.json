@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "abudiab",
   "version": "1.0.0",
-  "description": "نظام إدارة مطعم باستخدام Node.js",
+  "description": "ابو ذياب للبرمجيات",
   "main": "server.js",
   "type": "module",
   "scripts": {
