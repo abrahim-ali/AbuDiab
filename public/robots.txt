@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Sitemap: https://www.abudiab.com/sitemap.xml
+Sitemap: https://abudiab.onrender.com/sitemap.xml
 Disallow: /admin/
 Disallow: /private/
