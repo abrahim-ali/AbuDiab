@@ -1,226 +1,4 @@
 
 {
-  "blogPosts": [
-    {
-      "id": "1757367122441",
-      "title": {
-        "de": "🎯 كيفية بناء التطبيقات والمواقع والمتاجر الإلكترونية خطوة بخطوة",
-        "en": "🎯 How to Build Apps, Websites, and Online Stores Step by Step"
-      },
-      "content": {
-        "de": "<h2>مقدمة</h2>
-<p>في العصر الرقمي الحالي، أصبح بناء التطبيقات والمواقع والمتاجر الإلكترونية ضرورة لأي مشروع ناجح. سواء كنت رائد أعمال، أو مطورًا مبتدئًا، أو تاجرًا يسعى للتوسع، فإن فهم خطوات بناء هذه الأنظمة سيساعدك على اتخاذ قرارات ذكية وفعّالة.</p>
-
-<h2>1. حدد هدف المشروع</h2>
-<p>قبل أن تبدأ بالبرمجة، اسأل نفسك:</p>
-<ul>
-  <li>ما الهدف من الموقع أو التطبيق؟ (عرض منتجات، تقديم خدمة، بيع مباشر...)</li>
-  <li>من جمهورك المستهدف؟</li>
-  <li>ما المشكلة التي يحلها هذا المشروع؟</li>
-</ul>
-<p>تحديد الهدف بوضوح يُسهل اختيار الأدوات والتقنيات المناسبة.</p>
-
-<h2>2. اختر نوع المشروع</h2>
-<p>كل نوع له متطلبات مختلفة:</p>
-<ul>
-  <li><strong>موقع إلكتروني:</strong> مناسب للشركات، المدونات، أو المواقع التعريفية.</li>
-  <li><strong>تطبيق ويب:</strong> مثل تطبيقات الإدارة، المحاسبة، أو الأدوات الرقمية.</li>
-  <li><strong>متجر إلكتروني:</strong> لبيع المنتجات أو الخدمات عبر الإنترنت (مثل متاجر Shopify أو WooCommerce).</li>
-  <li><strong>تطبيق جوال:</strong> يعمل على الهواتف (iOS و Android) ويُبنى بـ React Native أو Flutter.</li>
-</ul>
-
-<h2>3. خطوات بناء المشروع</h2>
-
-<h3>المرحلة 1: التخطيط</h3>
-<ul>
-  <li>رسم شجرة الموقع (Site Map)</li>
-  <li>تصميم واجهات المستخدم (UI/UX)</li>
-  <li>تحديد الميزات الأساسية (مثل: عربة شراء، تسجيل دخول، دفع إلكتروني)</li>
-</ul>
-
-<h3>المرحلة 2: اختيار التقنيات</h3>
-<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse; margin: 10px 0;">
-  <tr style="background-color:#f2f2f2;">
-    <th>النوع</th>
-    <th>الأدوات المقترحة</th>
-  </tr>
-  <tr>
-    <td>مواقع بسيطة</td>
-    <td>HTML, CSS, JavaScript, WordPress</td>
-  </tr>
-  <tr>
-    <td>تطبيقات ويب</td>
-    <td>React.js, Vue.js, Node.js, Laravel</td>
-  </tr>
-  <tr>
-    <td>متاجر إلكترونية</td>
-    <td>WooCommerce, Shopify, Magento</td>
-  </tr>
-  <tr>
-    <td>تطبيقات جوال</td>
-    <td>React Native, Flutter, Swift, Kotlin</td>
-  </tr>
-</table>
-
-<h3>المرحلة 3: التطوير</h3>
-<ul>
-  <li>بناء الواجهة الأمامية (Frontend)</li>
-  <li>تطوير الخلفية (Backend) وإدارة البيانات</li>
-  <li>ربط قاعدة البيانات (مثل MySQL أو MongoDB)</li>
-  <li>دمج بوابات الدفع (مثل Stripe أو PayPal)</li>
-</ul>
-
-<h3>المرحلة 4: الاختبار</h3>
-<p>قبل النشر، تأكد من:</p>
-<ul>
-  <li>اختبار الأداء على أجهزة مختلفة</li>
-  <li>التحقق من سرعة التحميل</li>
-  <li>إغلاق الثغرات الأمنية</li>
-  <li>تجربة عملية الشراء (في المتاجر)</li>
-</ul>
-
-<h3>المرحلة 5: النشر والصيانة</h3>
-<ul>
-  <li>اختر استضافة موثوقة (مثل: VPS, AWS, أو استضافة متخصصة)</li>
-  <li>اشترِ اسم نطاق (Domain) احترافي</li>
-  <li>راقب الأداء وقم بالتحديثات الدورية</li>
-  <li>أضف ميزات جديدة حسب احتياجات المستخدمين</li>
-</ul>
-
-<h2>4. نصائح للنجاح</h2>
-<ul>
-  <li>ابدأ بمشروع بسيط (MVP) ثم طوّره تدريجيًا.</li>
-  <li>ركّز على تجربة المستخدم (UX) أكثر من الشكل.</li>
-  <li>استخدم أدوات جاهزة بدل إعادة اختراع العجلة.</li>
-  <li>ابقَ على تواصل مع المستخدمين واجمع التغذية الراجعة.</li>
-</ul>
-
-<h2>5. خاتمة</h2>
-<p>بناء التطبيقات والمواقع والمتاجر لم يعد حكرًا على الخبراء فقط. مع توفر الأدوات الحديثة، يمكن لأي شخص أن يبدأ مشروعه الرقمي. المفتاح هو: <strong>التخطيط الجيد، التنفيذ التدريجي، والاستمرارية في التطوير</strong>.</p>
-<p>ابدأ اليوم، وستكون خطوتك الأولى نحو عالم رقمي واسع مليء بالفرص!</p>",
-        "en": "<h2>Introduction</h2>
-<p>In today's digital age, building apps, websites, and online stores has become essential for any successful business. Whether you're an entrepreneur, a beginner developer, or a merchant looking to expand, understanding how to build these systems will help you make smart and effective decisions.</p>
-
-<h2>1. Define Your Project Goal</h2>
-<p>Before coding, ask yourself:</p>
-<ul>
-  <li>What is the purpose of this website or app? (Showcase products, offer services, direct sales...)</li>
-  <li>Who is your target audience?</li>
-  <li>What problem does this project solve?</li>
-</ul>
-<p>Clearly defining the goal makes it easier to choose the right tools and technologies.</p>
-
-<h2>2. Choose the Project Type</h2>
-<p>Each type has different requirements:</p>
-<ul>
-  <li><strong>Website:</strong> Ideal for companies, blogs, or presentation sites.</li>
-  <li><strong>Web Application:</strong> Like management systems, accounting tools, or digital platforms.</li>
-  <li><strong>Online Store:</strong> For selling products or services online (e.g., Shopify or WooCommerce).</li>
-  <li><strong>Mobile App:</strong> Runs on smartphones (iOS & Android), built with React Native or Flutter.</li>
-</ul>
-
-<h2>3. Step-by-Step Development</h2>
-
-<h3>Phase 1: Planning</h3>
-<ul>
-  <li>Create a site map</li>
-  <li>Design user interfaces (UI/UX)</li>
-  <li>Define core features (e.g., shopping cart, login, payment)</li>
-</ul>
-
-<h3>Phase 2: Choose the Right Tech</h3>
-<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse; margin: 10px 0;">
-  <tr style="background-color:#f2f2f2;">
-    <th>Type</th>
-    <th>Suggested Tools</th>
-  </tr>
-  <tr>
-    <td>Simple Websites</td>
-    <td>HTML, CSS, JavaScript, WordPress</td>
-  </tr>
-  <tr>
-    <td>Web Apps</td>
-    <td>React.js, Vue.js, Node.js, Laravel</td>
-  </tr>
-  <tr>
-    <td>Online Stores</td>
-    <td>WooCommerce, Shopify, Magento</td>
-  </tr>
-  <tr>
-    <td>Mobile Apps</td>
-    <td>React Native, Flutter, Swift, Kotlin</td>
-  </tr>
-</table>
-
-<h3>Phase 3: Development</h3>
-<ul>
-  <li>Build the frontend (user interface)</li>
-  <li>Develop the backend and manage data</li>
-  <li>Connect to a database (MySQL or MongoDB)</li>
-  <li>Integrate payment gateways (Stripe, PayPal)</li>
-</ul>
-
-<h3>Phase 4: Testing</h3>
-<p>Before launch, ensure:</p>
-<ul>
-  <li>Test performance on different devices</li>
-  <li>Check loading speed</li>
-  <li>Fix security vulnerabilities</li>
-  <li>Test the purchase process (for stores)</li>
-</ul>
-
-<h3>Phase 5: Launch & Maintenance</h3>
-<ul>
-  <li>Choose reliable hosting (VPS, AWS, or specialized hosting)</li>
-  <li>Buy a professional domain name</li>
-  <li>Monitor performance and update regularly</li>
-  <li>Add new features based on user feedback</li>
-</ul>
-
-<h2>4. Tips for Success</h2>
-<ul>
-  <li>Start with a simple version (MVP), then scale.</li>
-  <li>Focus on user experience (UX) more than design.</li>
-  <li>Use ready-made tools instead of reinventing the wheel.</li>
-  <li>Stay connected with users and collect feedback.</li>
-</ul>
-
-<h2>5. Conclusion</h2>
-<p>Building apps, websites, and online stores is no longer limited to experts. With modern tools, anyone can start their digital project. The key is: <strong>good planning, gradual implementation, and continuous improvement</strong>.</p>
-<p>Start today, and your first step will lead you to a vast digital world full of opportunities!</p>"
-      },
-      "image": "/img/diab.png",
-      "slug": "How to Build Apps, Websites, and Online Stores Step by Step",
-      "published": true,
-      "id": "1757366434427"
-    },
-    {
-      "id": "1757367122442",
-      "title": {
-        "de": "غفعع",
-        "en": "ثثثر"
-      },
-      "content": {
-        "de": "سسسسسسسسسث",
-        "en": "يييييييس"
-      },
-      "slug": "ةتت",
-      "image": "/img/diab.png",
-      "published": true
-    },
-    {
-      "id": "1757367122444",
-      "title": {
-        "de": "غفعع",
-        "en": "ثثثر"
-      },
-      "content": {
-        "de": "سسسسسسسسسث",
-        "en": "يييييييس"
-      },
-      "slug": "ةتت",
-      "image": "/img/diab.png",
-      "published": true
-    }
-  ]
+  "blogPosts": []
 }
