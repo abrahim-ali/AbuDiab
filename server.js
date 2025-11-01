@@ -6,10 +6,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { Resend } from 'resend';
 import path from 'path';
-import multer from 'multer'; 
-import bcrypt from 'bcrypt'; 
+import multer from 'multer'; // ← أضف هذه المكتبة
+import bcrypt from 'bcrypt'; // ← نستخدمه لتشفير كلمة المرور
+import mongoose from 'mongoose';
+import BlogPost from './models/BlogPost.js';
+import Project from './models/Project.js';
+import Testimonial from './models/Testimonial.js';
 
+// تحميل متغيرات البيئة
 dotenv.config();
+
+// استيراد النموذج
 
 // حل __dirname في ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -78,15 +85,19 @@ app.post('/api/admin/login', async (req, res) => {
 
 
 
-// مسار ملف البيانات
-const dataPath = path.join(__dirname,'data', 'db.json');
-// جعل مجلد uploads قابلاً للوصول
-app.use('/uploads', express.static('uploads'));
+// التأكد من وجود مجلد uploads
+const uploadsDir = './uploads';
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
-// تهيئة رفع الملفات
+// خدمة الملفات الثابتة
+app.use('/uploads', express.static(uploadsDir));
+
+// إعداد Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // الملفات تُرفع هنا
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + path.extname(file.originalname);
@@ -96,132 +107,131 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// قراءة البيانات من الملف
-const readData = () => {
-  if (!fs.existsSync(dataPath)) {
-    // إذا لم يوجد الملف، نُنشأ واحدًا
-    const initialData = { blogPosts: [] };
-    fs.writeFileSync(dataPath, JSON.stringify(initialData, null, 2));
-    console.log('تم إنشاء ملف db.json');
-    return initialData;
-  }
+// Middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  const rawData = fs.readFileSync(dataPath, 'utf8');
-
-  if (rawData.trim() === '') {
-    // إذا كان الملف فارغًا
-    const initialData = { blogPosts: [] };
-    fs.writeFileSync(dataPath, JSON.stringify(initialData, null, 2));
-    console.log('الملف كان فارغًا، تم تهيئته');
-    return initialData;
-  }
-
-  try {
-    return JSON.parse(rawData);
-  } catch (err) {
-    console.error('خطأ في تحليل JSON:', err.message);
-    // إصلاح تلقائي: إعادة تهيئة الملف
-    const initialData = { blogPosts: [] };
-    fs.writeFileSync(dataPath, JSON.stringify(initialData, null, 2));
-    console.log('تم إصلاح الملف التالف');
-    return initialData;
-  }
-};
-// كتابة البيانات إلى الملف
-const writeData = (data) => {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), 'utf8');
+// دالة مساعدة لإنشاء رابط كامل للصورة
+const getImageUrl = (req, filename) => {
+  if (!filename) return '';
+  if (filename.startsWith('https')) return filename;
+  return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
 };
 
 // --- API Routes ---
 
 // GET: جميع المقالات المنشورة
-app.get('/api/blog', (req, res) => {
-  const data = readData();
-  const publishedPosts = data.blogPosts.filter(p => p.published);
-  res.json(publishedPosts);
+app.get('/api/blog', async (req, res) => {
+  try {
+    const posts = await BlogPost.find({ published: true }).sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    console.error('خطأ في جلب المقالات:', err);
+    res.status(500).json({ error: 'خطأ داخلي' });
+  }
 });
 
 // GET: مقالة واحدة حسب slug
-app.get('/api/blog/:slug', (req, res) => {
-  console.log('تم طلب slug:', req.params.slug); // 🔍 تسجيل الطلب
-
-  const data = readData();
-  console.log('عدد المقالات في db.json:', data.blogPosts.length); // 🔍 كم مقالة؟
-
-  const post = data.blogPosts.find(p => {
-    console.log(`مقارنة: "${p.slug}" === "${req.params.slug}" -> ${p.slug === req.params.slug}`);
-    return p.slug === req.params.slug && p.published;
-  });
-
-  if (!post) {
-    console.log('❌ لم يتم العثور على المقالة بالـ slug:', req.params.slug);
-    return res.status(404).json({ error: 'مقال غير موجود' });
+app.get('/api/blog/:slug', async (req, res) => {
+  try {
+    const post = await BlogPost.findOne({
+      slug: req.params.slug,
+      published: true
+    });
+    if (!post) {
+      return res.status(404).json({ error: 'مقال غير موجود' });
+    }
+    res.json(post);
+  } catch (err) {
+    console.error('خطأ في جلب المقالة:', err);
+    res.status(500).json({ error: 'خطأ داخلي' });
   }
-
-  console.log('✅ المقالة وُجدت:', post.title.de || post.title.en);
-  res.json(post);
 });
 
 // POST: إضافة مقالة جديدة
-app.post('/api/blog', upload.single('image'), (req, res) => {
-  const data = readData();
-  const body = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : body.image;
+app.post('/api/blog', upload.single('image'), async (req, res) => {
+  try {
+    const body = req.body;
+    const image = req.file 
+      ? getImageUrl(req, req.file.filename) 
+      : body.image || '';
 
-  const newPost = {
-    id: Date.now().toString(),
-    title: JSON.parse(body.title),
-    content: JSON.parse(body.content),
-    slug: body.slug,
-    image: image,
-    published: body.published === 'true',
-  };
+    // التحقق من تكرار slug
+    const existing = await BlogPost.findOne({ slug: body.slug });
+    if (existing) {
+      return res.status(400).json({ error: 'الـ slug مكرر' });
+    }
 
-  // تحقق من تكرار slug
-  const exists = data.blogPosts.some(p => p.slug === newPost.slug);
-  if (exists) return res.status(400).json({ error: 'الـ slug مكرر' });
+    const newPost = new BlogPost({
+      id: Date.now().toString(),
+      title: JSON.parse(body.title),
+      content: JSON.parse(body.content),
+      slug: body.slug,
+      image: image,
+      published: body.published === 'true'
+    });
 
-  data.blogPosts.push(newPost);
-  writeData(data);
-  res.status(201).json(newPost);
+    await newPost.save();
+    res.status(201).json(newPost);
+  } catch (err) {
+    console.error('خطأ في إضافة المقالة:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'الـ slug مكرر' });
+    }
+    res.status(500).json({ error: 'فشل الحفظ' });
+  }
 });
 
-// PUT: تعديل مقالة حسب ID
-app.put('/api/blog/:id', upload.single('image'), (req, res) => {
-  const data = readData();
-  const body = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : body.image;
+// PUT: تعديل مقالة
+app.put('/api/blog/:id', upload.single('image'), async (req, res) => {
+  try {
+    const body = req.body;
+    const image = req.file 
+      ? getImageUrl(req, req.file.filename) 
+      : body.image || '';
 
-  const index = data.blogPosts.findIndex(p => p.id === req.params.id);
-  if (index === -1) return res.status(404).json({ error: 'مقال غير موجود' });
+    const existingPost = await BlogPost.findOne({ id: req.params.id });
+    if (!existingPost) {
+      return res.status(404).json({ error: 'مقال غير موجود' });
+    }
 
-  const updatedPost = {
-    ...data.blogPosts[index],
-    title: JSON.parse(body.title),
-    content: JSON.parse(body.content),
-    slug: body.slug,
-    image: image,
-    published: body.published === 'true',
-  };
+    const duplicate = await BlogPost.findOne({
+      slug: body.slug,
+      id: { $ne: req.params.id }
+    });
+    if (duplicate) {
+      return res.status(400).json({ error: 'الـ slug مكرر' });
+    }
 
-  // تجنب تكرار slug
-  const duplicate = data.blogPosts.find(p => p.slug === updatedPost.slug && p.id !== req.params.id);
-  if (duplicate) return res.status(400).json({ error: 'الـ slug مكرر' });
+    existingPost.title = JSON.parse(body.title);
+    existingPost.content = JSON.parse(body.content);
+    existingPost.slug = body.slug;
+    existingPost.image = image;
+    existingPost.published = body.published === 'true';
 
-  data.blogPosts[index] = updatedPost;
-  writeData(data);
-  res.json(updatedPost);
+    await existingPost.save();
+    res.json(existingPost);
+  } catch (err) {
+    console.error('خطأ في تعديل المقالة:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'الـ slug مكرر' });
+    }
+    res.status(500).json({ error: 'فشل التحديث' });
+  }
 });
 
-// DELETE: حذف مقالة حسب ID
-app.delete('/api/blog/:id', (req, res) => {
-  const data = readData();
-  const index = data.blogPosts.findIndex(p => p.id === req.params.id);
-  if (index === -1) return res.status(404).json({ error: 'مقال غير موجود' });
-
-  data.blogPosts.splice(index, 1);
-  writeData(data);
-  res.json({ message: 'تم الحذف بنجاح' });
+// DELETE: حذف مقالة
+app.delete('/api/blog/:id', async (req, res) => {
+  try {
+    const result = await BlogPost.findOneAndDelete({ id: req.params.id });
+    if (!result) {
+      return res.status(404).json({ error: 'مقال غير موجود' });
+    }
+    res.json({ message: 'تم الحذف بنجاح' });
+  } catch (err) {
+    console.error('خطأ في الحذف:', err);
+    res.status(500).json({ error: 'فشل الحذف' });
+  }
 });
 
 
@@ -312,10 +322,156 @@ app.post('/api/send-contact', async (req, res) => {
   }
 });
 
+
+// GET: جميع المشاريع (للاستخدام في الواجهة الأمامية)
+app.get('/api/projects', async (req, res) => {
+  try {
+    const projects = await Project.find().sort({ order: 1, createdAt: -1 });
+    res.json(projects);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل جلب المشاريع' });
+  }
+});
+
+// POST: إضافة مشروع
+app.post('/api/projects', upload.single('img'), async (req, res) => {
+  try {
+    const body = req.body;
+    const img = req.file 
+      ? getImageUrl(req, req.file.filename)
+      : body.img || '';
+
+    const newProject = new Project({
+      title: JSON.parse(body.title),
+      category: JSON.parse(body.category),
+      description: JSON.parse(body.description),
+      img: img,
+      url: body.url || '',
+      order: parseInt(body.order) || 0
+    });
+
+    await newProject.save();
+    res.status(201).json(newProject);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل إضافة المشروع' });
+  }
+});
+
+// PUT: تعديل مشروع
+app.put('/api/projects/:id', upload.single('img'), async (req, res) => {
+  try {
+    const body = req.body;
+    const img = req.file 
+      ? getImageUrl(req, req.file.filename)
+      : body.img || '';
+
+    const updated = await Project.findByIdAndUpdate(
+      req.params.id,
+      {
+        title: JSON.parse(body.title),
+        category: JSON.parse(body.category),
+        description: JSON.parse(body.description),
+        img: img,
+        url: body.url || '',
+        order: parseInt(body.order) || 0
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) return res.status(404).json({ error: 'مشروع غير موجود' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل التعديل' });
+  }
+});
+
+// DELETE: حذف مشروع
+app.delete('/api/projects/:id', async (req, res) => {
+  try {
+    const deleted = await Project.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'مشروع غير موجود' });
+    res.json({ message: 'تم الحذف' });
+  } catch (err) {
+    res.status(500).json({ error: 'فشل الحذف' });
+  }
+});
+
+// GET: جميع الآراء
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const testimonials = await Testimonial.find().sort({ order: 1, createdAt: -1 });
+    res.json(testimonials);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل جلب الآراء' });
+  }
+});
+
+// POST: إضافة رأي
+app.post('/api/testimonials', async (req, res) => {
+  try {
+    const { name, role, company, content, rating = 5, order = 0 } = req.body;
+    const newTestimonial = new Testimonial({
+      name,
+      role: JSON.parse(role),
+      company,
+      content: JSON.parse(content),
+      rating,
+      order
+    });
+    await newTestimonial.save();
+    res.status(201).json(newTestimonial);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل الإضافة' });
+  }
+});
+
+// PUT: تعديل رأي
+app.put('/api/testimonials/:id', async (req, res) => {
+  try {
+    const { name, role, company, content, rating = 5, order = 0 } = req.body;
+    const updated = await Testimonial.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        role: JSON.parse(role),
+        company,
+        content: JSON.parse(content),
+        rating,
+        order
+      },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'رأي غير موجود' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل التعديل' });
+  }
+});
+
+// DELETE: حذف رأي
+app.delete('/api/testimonials/:id', async (req, res) => {
+  try {
+    const deleted = await Testimonial.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'رأي غير موجود' });
+    res.json({ message: 'تم الحذف' });
+  } catch (err) {
+    res.status(500).json({ error: 'فشل الحذف' });
+  }
+});
+
+
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+ res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 // اتصال بقاعدة البيانات
-app.listen(PORT, () => {
-  console.log(`✅ Der Server arbeitet an http://localhost:${PORT}`);
-});
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('✅ متصل بقاعدة بيانات MongoDB');
+    app.listen(PORT, () => {
+      console.log(`🚀 الخادم يعمل على المنفذ ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ فشل الاتصال بـ MongoDB:', err.message);
+    process.exit(1);
+  });
