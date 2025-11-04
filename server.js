@@ -464,14 +464,19 @@ app.get('*', (req, res) => {
  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 // اتصال بقاعدة البيانات
-mongoose.connect(process.env.MONGODB_URI)
+// بدء الخادم فورًا
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 الخادم يعمل على المنفذ ${PORT}`);
+});
+
+// الاتصال بـ MongoDB بعد بدء الخادم
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('✅ متصل بقاعدة بيانات MongoDB');
-    app.listen(PORT, () => {
-      console.log(`🚀 الخادم يعمل على المنفذ ${PORT}`);
-    });
+    console.log('✅ تم الاتصال بقاعدة بيانات MongoDB');
   })
-  .catch(err => {
-    console.error('❌ فشل الاتصال بـ MongoDB:', err.message);
-    process.exit(1);
+  .catch((err) => {
+    console.error('❌ فشل الاتصال بـ MongoDB:', err);
+    // لا تُنهِ العملية هنا في production (اختياري، حسب الحاجة)
+    // لكن احذر: بعض الـ endpoints قد تفشل لاحقًا
   });
